@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Video Prompt Linter: Check Your Prompt Before You Spend Credits</title>
+<meta name="description" content="Paste an AI video prompt and get instant warnings: missing subject or camera, more than one camera move, no preserve clause, vague adjectives, too long. Free, runs in the browser.">
+<style>
+:root{--bg:#0c1118;--card:#152030;--fg:#eceef4;--mut:#a0a7b8;--acc:#6fc3ff}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+main{max-width:880px;margin:0 auto;padding:28px 16px 56px}h1{font-size:1.9rem;margin:.2em 0}h2{font-size:1.25rem;margin-top:2.2em}
+.sub{color:var(--mut)}.card{background:var(--card);border-radius:14px;padding:18px;margin:16px 0}
+label{display:block;font-weight:600;margin:12px 0 4px}input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #333a4d;background:rgba(0,0,0,.25);color:var(--fg);font:inherit}
+textarea{min-height:90px}button{margin-top:14px;padding:10px 18px;border:0;border-radius:8px;background:var(--acc);color:#0b0d13;font-weight:700;cursor:pointer}
+.out{white-space:pre-wrap;background:rgba(0,0,0,.3);border:1px solid #333a4d;border-radius:8px;padding:12px;min-height:60px}
+a{color:var(--acc)}ul,ol{padding-left:1.25em}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.item{background:var(--card);border-radius:12px;padding:14px;border:2px solid transparent}.item.hit{border-color:var(--acc)}.item.dim{opacity:.45}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08);margin:2px 4px 0 0;color:var(--mut)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:620px){.row{grid-template-columns:1fr}}
+.chk label{font-weight:400;display:flex;gap:8px;align-items:flex-start}.chk input{width:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #333a4d;padding:8px;text-align:left;vertical-align:top}
+footer{color:var(--mut);margin-top:44px;font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+<h1>AI Video Prompt Linter</h1>
+<p class="sub">Paste a prompt for any AI video model. The linter flags the mistakes that most often waste a generation, before you press render.</p>
+<div class="card"><label for="p">Your prompt</label><textarea id="p" placeholder="A cinematic shot of a man walking in the rain, epic, amazing, camera orbits and zooms and pans..."></textarea><button type="button" id="go">Lint prompt</button><div class="out" id="out">Paste a prompt and press Lint.</div></div>
+<h2>What it checks</h2><ul><li>Camera: none stated, or more than one move.</li><li>Preserve clause: nothing saying what must stay the same.</li><li>Exclusions: no "no text / no extra people".</li><li>Filler adjectives: epic, amazing, stunning, 8k, masterpiece.</li><li>Length: over ~120 words for a short clip.</li><li>Ending: no instruction for how the shot finishes.</li></ul>
+<h2>Guides and templates on Oraclip</h2>
+<ul>
+<li><a href="https://oraclip.com/blog/how-to-write-ai-video-prompts">How to write AI video prompts: a six-part structure</a></li>
+<li><a href="https://oraclip.com/prompts">Motion transfer prompt library</a></li>
+<li><a href="https://oraclip.com/prompts/category/motion-control">Motion control prompts</a></li>
+<li><a href="https://oraclip.com/blog/image-to-video-ai-tips">Image-to-video AI: 8 tips</a></li>
+<li><a href="https://oraclip.com/blog/choosing-a-video-model-in-oraclip">Choosing a video model in Oraclip</a></li>
+<li><a href="https://oraclip.com/prompts/cascading-domino-chain-reaction-52439632">Example: cascading domino chain reaction</a></li>
+<li><a href="https://oraclip.com/pricing">Oraclip pricing and credit packs</a></li>
+<li><a href="https://oraclip.com/">Oraclip</a></li>
+</ul>
+<footer>An unofficial, free companion tool for <a href="https://oraclip.com/">oraclip.com</a>, the AI motion control and motion transfer video agent. Runs entirely in your browser; nothing is uploaded. Last updated October 2026.</footer>
+</main>
+<script>
+document.getElementById('go').addEventListener('click',function(){var p=document.getElementById('p').value,l=p.toLowerCase(),w=[],mv=['push-in','push in','orbit','pan','tilt','zoom','dolly','crane','drone','tracking','handheld','pull back','pull-back'].filter(function(m){return l.indexOf(m)>=0});
+if(!mv.length&&!/static|locked|tripod/.test(l))w.push('No camera instruction - add exactly one move or say "locked-off".');if(mv.length>1)w.push('More than one camera move ('+mv.join(', ')+') - keep one.');if(!/keep|preserve|same face|unchanged/.test(l))w.push('No preserve clause - say what must not change (face, outfit, product label).');if(!/\bno\b|without|avoid/.test(l))w.push('No exclusions - add "no text, no extra people".');var f=['epic','amazing','stunning','masterpiece','8k','ultra realistic','breathtaking'].filter(function(a){return l.indexOf(a)>=0});if(f.length)w.push('Filler words ('+f.join(', ')+') - replace with concrete light, lens or action.');var n=p.split(/\s+/).filter(Boolean).length;if(n>120)w.push(n+' words - trim below ~120 for short clips.');if(!/end|final|finish|hold/.test(l))w.push('No ending - say how the shot finishes (e.g. "hold the final pose").');
+document.getElementById('out').textContent=p.trim()?(w.length?w.map(function(x){return '- '+x}).join('\n'):'No issues found.'):'Paste a prompt first.';});
+</script>
+</body>
+</html>
